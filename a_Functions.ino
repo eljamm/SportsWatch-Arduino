@@ -7,6 +7,8 @@ void setup_sensor() {
   pinMode(LOm, INPUT); // Setup for leads off detection LO -
 }
 
+// --------------------------------------
+
 void setup_lcd() {
   lcd.init();
   lcd.backlight();
@@ -16,9 +18,11 @@ void setup_lcd() {
   lcd.clear();
 }
 
+// --------------------------------------
+
 void setup_bluetooth() {
   pinMode(7, OUTPUT);  // this pin will pull the HC-05 pin 34 (key pin) HIGH to switch module to AT mode
-  
+
   if (atmode == true) {
     digitalWrite(7, HIGH);
   } else {
@@ -33,14 +37,17 @@ void setup_bluetooth() {
   Serial.begin(9600);
   UNO.begin(9600);
 
-  Serial.println("Ready to receive.");
+  //Serial.println("Ready to receive.");
 }
 
 /* ======================================
                    Sensor
    ====================================== */
 
-void detect_pulse() { // old method, might be removed later
+/*
+   Deprecated
+*/
+void detect_pulse() {
   if ((digitalRead(LOp) == 1) || (digitalRead(LOm) == 1)) {
     Serial.println('!');  // Indicated that the Leads are Off
   }
@@ -66,8 +73,33 @@ void detect_pulse() { // old method, might be removed later
   //delay(1);
 }
 
+// --------------------------------------
+
+/*
+   Deprecated
+*/
+void calculateBPM () {
+  int beat_new = millis();            // get the current millisecond
+  int diff = beat_new - beat_old;     // find the time between the last two beats
+  float currentBPM = 60000 / diff;    // convert to beats per minute
+  beats[beatIndex] = currentBPM;      // store to array to convert the average
+  float total = 0.0;
+  for (int i = 0; i < j; i++) {
+    total += beats[i];
+  }
+  BPM = int(total / j);
+  beat_old = beat_new;
+  if (j < 60) {
+    j++;
+  }
+  beatIndex = (beatIndex + 1) % 60;  // cycle through the array instead of using FIFO queue
+}
+
+// --------------------------------------
+
 void read_pulse() {
   reading = analogRead(0);
+  Serial.println(reading);
 
   // Heart beat leading edge detected.
   if (reading > UpperThreshold && IgnoreReading == false) {
@@ -91,32 +123,17 @@ void read_pulse() {
   BPM = (1.0 / PulseInterval) * 60.0 * 1000;
 }
 
-void calculateBPM () {
-  int beat_new = millis();            // get the current millisecond
-  int diff = beat_new - beat_old;     // find the time between the last two beats
-  float currentBPM = 60000 / diff;    // convert to beats per minute
-  beats[beatIndex] = currentBPM;      // store to array to convert the average
-  float total = 0.0;
-  for (int i = 0; i < j; i++) {
-    total += beats[i];
-  }
-  BPM = int(total / j);
-  beat_old = beat_new;
-  if (j < 60) {
-    j++;
-  }
-  beatIndex = (beatIndex + 1) % 60;  // cycle through the array instead of using FIFO queue
-}
+// --------------------------------------
 
 void simulateBPM() {
   if (currentMillisBPM - previousMillisBPM >= simulateInterval) {
     PulseInterval = currentMillisBPM - previousMillisBPM;
     previousMillisBPM = currentMillisBPM;
-    
+
     simulateInterval = random(600, 1200);
 
-    Serial.print("Interval:\t");
-    Serial.println(simulateInterval);
+    //Serial.print("Interval:\t");
+    //Serial.println(simulateInterval);
 
     BPM = (1.0 / PulseInterval) * 60.0 * 1000;
   }
@@ -135,7 +152,7 @@ void lcd_print(String message, int x, int y) {
 /* ======================================
                  Bluetooth
    ====================================== */
-   
+
 void enter_at_mode() {
   if (atmode == true) {
     // Enter AT mode
@@ -153,6 +170,8 @@ void enter_at_mode() {
   }
 }
 
+// --------------------------------------
+
 void send_bpm() {
   if (currentMillis - previousMillis >= sendInterval && constantSend == true) {
     previousMillis = currentMillis;
@@ -168,4 +187,35 @@ void send_bpm() {
     UNO.println(BPM);
     UNO.flush();
   }
+
+  if (currentMillisECG - previousMillisECG >= sendIntervalECG) {
+    previousMillisECG = currentMillisECG;
+    
+    String ecgMessage = "";
+    for (int i = 0; i < ecgIndex; i++) {
+      ecgMessage += "*";
+      ecgMessage += String(ecg[i]);
+    }
+    //Serial.println(ecgMessage);
+    UNO.println(ecgMessage);
+  }
+}
+
+/* ======================================
+                  Test
+   ====================================== */
+
+void generate() {
+  readingECG = analogRead(0);
+  //readingECG = random(300, 600);
+
+  ecg[ecgIndex] = readingECG;
+  
+  ecgIndex = (ecgIndex + 1) % 100;  // cycle through the array instead of using FIFO queue
+}
+
+void get_time() {
+  currentMillis = millis();
+  currentMillisBPM = currentMillis;
+  currentMillisECG = currentMillis;
 }
