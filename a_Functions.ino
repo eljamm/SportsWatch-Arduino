@@ -101,16 +101,28 @@ void read_pulse() {
   reading = analogRead(0);
   Serial.println(reading);
 
+  if (currentMillisECG - previousMillisECG >= sendIntervalECG) {
+    previousMillisECG = currentMillisECG;
+
+    print_ecg();
+  }
+
+
   // Heart beat leading edge detected.
   if (reading > UpperThreshold && IgnoreReading == false) {
     if (FirstPulseDetected == false) {
       FirstPulseTime = millis();
       FirstPulseDetected = true;
+
+      print_ecg();
     }
     else {
       SecondPulseTime = millis();
       PulseInterval = SecondPulseTime - FirstPulseTime;
       FirstPulseTime = SecondPulseTime;
+
+
+      print_ecg();
     }
     IgnoreReading = true;
   }
@@ -172,6 +184,14 @@ void enter_at_mode() {
 
 // --------------------------------------
 
+void print_bpm() {
+  UNO.print('#');
+  UNO.print(BPM);
+
+  UNO.println();
+  UNO.flush();
+}
+
 void send_bpm() {
   if (currentMillis - previousMillis >= sendInterval && constantSend == true) {
     previousMillis = currentMillis;
@@ -184,20 +204,24 @@ void send_bpm() {
     Serial.println(" BPM");
     Serial.flush();
 
-    UNO.println(BPM);
-    UNO.flush();
+    print_bpm();
   }
+}
 
+void print_ecg() {
+    for (int i = 0; i < ecgIndex; i++) {
+      UNO.print('*');
+      UNO.print(ecg[i]);
+    }
+    UNO.println();
+    UNO.flush();
+}
+
+void send_ecg() {
   if (currentMillisECG - previousMillisECG >= sendIntervalECG) {
     previousMillisECG = currentMillisECG;
-    
-    String ecgMessage = "";
-    for (int i = 0; i < ecgIndex; i++) {
-      ecgMessage += "*";
-      ecgMessage += String(ecg[i]);
-    }
-    //Serial.println(ecgMessage);
-    UNO.println(ecgMessage);
+
+    print_ecg();
   }
 }
 
@@ -206,12 +230,12 @@ void send_bpm() {
    ====================================== */
 
 void generate() {
-  readingECG = analogRead(0);
-  //readingECG = random(300, 600);
+  //readingECG = analogRead(0);
+  readingECG = random(300, 600);
 
   ecg[ecgIndex] = readingECG;
-  
-  ecgIndex = (ecgIndex + 1) % 100;  // cycle through the array instead of using FIFO queue
+
+  ecgIndex = (ecgIndex + 1) % 10;  // cycle through the array instead of using FIFO queue
 }
 
 void get_time() {

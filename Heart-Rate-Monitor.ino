@@ -22,7 +22,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 static const uint8_t RX = 9;
 static const uint8_t TX = 8;
 boolean atmode = false;
-bool constantSend = false;
+bool constantSend = true;
 int data = 0;
 
 SoftwareSerial UNO(TX, RX); // Define Bluetooth Serial
@@ -65,7 +65,7 @@ unsigned long PulseInterval = 0;
  
 unsigned long currentMillis = 0;
 unsigned long previousMillis = 0;
-const long sendInterval = 3500;
+const long sendInterval = 2000;
 
 unsigned long currentMillisBPM = 0;
 unsigned long previousMillisBPM = 0;
@@ -114,10 +114,12 @@ void lcd_print(String message, int x, int y);
                   Test
    ====================================== */
 
-int ecg[100];
+int ecg[10];
 int ecgIndex = 0;
 int readingECG = 0;
 
 unsigned long currentMillisECG = 0;
 unsigned long previousMillisECG = 0;
-const long sendIntervalECG = 500;
+const long sendIntervalECG = 100;
+
+bool canSend = true;

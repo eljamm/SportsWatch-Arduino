@@ -28,13 +28,16 @@ void loop() {
   // --------------------------------------
 
   // Read pulse from sensor and Calculate BPM
-  read_pulse();
+  //read_pulse();
 
   // Calculate BPM from simulated data
-  //simulateBPM();
+  simulateBPM();
 
   generate();
 
   // Send BPM value to bluetooth module
   send_bpm();
+
+  // Send ECG Values
+  send_ecg();
 }
