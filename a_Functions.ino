@@ -101,6 +101,7 @@ void read_pulse() {
   reading = analogRead(0);
   Serial.println(reading);
 
+  // Print Signal
   if (currentMillisECG - previousMillisECG >= sendIntervalECG) {
     previousMillisECG = currentMillisECG;
 
@@ -196,13 +197,13 @@ void send_bpm() {
   if (currentMillis - previousMillis >= sendInterval && constantSend == true) {
     previousMillis = currentMillis;
 
-    Serial.print(reading);
-    Serial.print("\t");
-    Serial.print(PulseInterval);
-    Serial.print("\t");
-    Serial.print(BPM);
-    Serial.println(" BPM");
-    Serial.flush();
+    //Serial.print(reading);
+    //Serial.print("\t");
+    //Serial.print(PulseInterval);
+    //Serial.print("\t");
+    //Serial.print(BPM);
+    //Serial.println(" BPM");
+    //Serial.flush();
 
     print_bpm();
   }
@@ -210,11 +211,9 @@ void send_bpm() {
 
 void print_ecg() {
     for (int i = 0; i < ecgIndex; i++) {
-      UNO.print('*');
-      UNO.print(ecg[i]);
+      Serial.println(ecg[i]);
     }
-    UNO.println();
-    UNO.flush();
+    Serial.flush();
 }
 
 void send_ecg() {
