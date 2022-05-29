@@ -98,32 +98,19 @@ void calculateBPM () {
 // --------------------------------------
 
 void read_pulse() {
-  reading = analogRead(0);
-  Serial.println(reading);
-
-  // Print Signal
-  if (currentMillisECG - previousMillisECG >= sendIntervalECG) {
-    previousMillisECG = currentMillisECG;
-
-    print_ecg();
-  }
-
+  reading = analogRead(0);  // Get value from sensor
+  Serial.println(reading);  // If you want to visualize it with serial plotter
 
   // Heart beat leading edge detected.
   if (reading > UpperThreshold && IgnoreReading == false) {
     if (FirstPulseDetected == false) {
       FirstPulseTime = millis();
       FirstPulseDetected = true;
-
-      print_ecg();
     }
     else {
       SecondPulseTime = millis();
       PulseInterval = SecondPulseTime - FirstPulseTime;
       FirstPulseTime = SecondPulseTime;
-
-
-      print_ecg();
     }
     IgnoreReading = true;
   }
@@ -229,8 +216,8 @@ void send_ecg() {
    ====================================== */
 
 void generate() {
-  //readingECG = analogRead(0);
-  readingECG = random(300, 600);
+  readingECG = analogRead(0);
+  //readingECG = random(300, 600);
 
   ecg[ecgIndex] = readingECG;
 

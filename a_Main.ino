@@ -28,10 +28,10 @@ void loop() {
   // --------------------------------------
 
   // Read pulse from sensor and Calculate BPM
-  //read_pulse();
+  read_pulse();
 
   // Calculate BPM from simulated data
-  simulateBPM();
+  //simulateBPM();
 
   generate();
 
@@ -39,5 +39,5 @@ void loop() {
   send_bpm();
 
   // Send ECG Values
-  send_ecg();
+  //send_ecg();
 }
